@@ -5,6 +5,8 @@ To use the project, you need to create a database and specify the user, password
 After that, execute php bin/console doctrine:schema:update --force to create the tables.
 Populate the tables with the initial set of data that you can find inside the file dataSeeding.sql, on the project root.
 
+You will have 3 users: admin, teacher and student, all of them with password = 123456 and different roles.
+
 Note that this is a work in progress, and also my first project using Symfony 4. Any advice would be greatly appreciated!
 
 TODO list:
