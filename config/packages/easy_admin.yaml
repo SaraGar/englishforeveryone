@@ -1,0 +1,19 @@
+easy_admin:
+    design: 
+        brand_color: '#fed136'
+        assets:
+            favicon: 
+                path: 'img/favicon.png'
+                mime_type: 'image/png'
+    site_name: 'English for everyone - Admin panel'
+    entities:
+        # List the entity class name you want to manage
+        - App\Entity\BillingAddress
+        - App\Entity\Invoice
+        - App\Entity\InvoiceLine
+        - App\Entity\Plan
+        - App\Entity\PromoCode
+        - App\Entity\Reservation
+        - App\Entity\Schedule
+        - App\Entity\User
+        - App\Entity\Lesson

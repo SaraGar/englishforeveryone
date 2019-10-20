@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}English for everyone!{% endblock %}</title>
+        {% block stylesheets %}
+        
+            <!-- Bootstrap core CSS -->
+            <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+            <!-- Custom fonts -->
+            <link href="fontawesome/css/all.min.css" rel="stylesheet" type="text/css">
+            <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+            <link href='https://fonts.googleapis.com/css?family=Kaushan+Script' rel='stylesheet' type='text/css'>
+            <link href='https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+            <link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700' rel='stylesheet' type='text/css'>
+            <link rel="shortcut icon" href="{{asset('img/favicon.png')}}" />
+
+            <style>
+            .form-control{
+                margin-bottom: 20px;
+            }
+            li{
+              line-height: 1.8;
+            }
+            </style>
+        {% endblock %}
+    </head>
+    <body>
+        {% block body %}
+        
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
+        <div class="container">
+          <a class="navbar-brand js-scroll-trigger" href="{{path('home')}}">English for everyone!</a>
+          <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            Menu
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav text-uppercase ml-auto">
+              <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="{{path('home')}}#know">Know more!</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="{{path('home')}}#pricing">Plans & Pricing</a>
+              </li>
+        <!-- <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="{{path('home')}}#blog">Blog</a>
+              </li> -->
+              {% if app.user %}
+               <li class="nav-item">
+                 <a class="nav-link js-scroll-trigger" href="{{path('my_calendar')}}">Dashboard</a>
+               </li>
+              {% else %}
+              <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="{{path('app_login')}}">Login</a>
+              </li>
+              {% endif %}
+            </ul>
+          </div>
+        </div>
+      </nav>
+    
+      {% endblock %}
+      {% block javascripts %}
+
+        <script src="jquery/jquery.min.js"></script>
+        <script src="bootstrap/js/bootstrap.bundle.min.js"></script>      
+        
+      {% endblock %}
+    </body>
+</html>

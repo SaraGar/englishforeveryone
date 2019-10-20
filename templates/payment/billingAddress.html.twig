@@ -1,0 +1,274 @@
+{% extends 'dashboard/dash_base.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+{% block content%}
+{% if plan is defined and plan != '' %}
+
+<div class="container">
+    <div class="row">
+
+      {# YOUR PURCHASE #}
+      <div class="col-md-4 order-md-2 mb-4">
+        <h4 class="d-flex justify-content-between align-items-center mb-3">
+          <span class="text-muted">Your purchase</span>
+        </h4>
+        <ul class="list-group mb-3">
+          <li class="list-group-item d-flex justify-content-between lh-sm">
+            <div>
+              <h6 class="my-0">{{ plan.lessonsNumber }} lessons plan</h6>
+            </div>
+            <span class="text-muted">${{ plan.priceTotal }}</span>
+          </li>  
+          <li id='codeBlock' class="list-group-item d-flex justify-content-between bg-light" style='display:none !important'>
+            <div class="text-success">
+              <h6 class="my-0">Promo code</h6>
+              <small><span id='codeText'></span></small>
+            </div>
+            <span class="text-success" id='codeDiscount'> </span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span>Total (USD)</span>
+            <strong>$<span id='total'>{{ plan.priceTotal }}</span></strong>
+          </li>
+        </ul>
+        <form class="card p-2">
+          <div class="input-group">
+            <input id='promo_code' type="text" class="form-control" placeholder="Promo code">
+            <div class="input-group-append">
+              <input id='add_promo' type="button" class="btn btn-secondary" value='Add'></input>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      {# BILLING ADDRESS #}
+      <div class="col-md-8 order-md-1">
+        <h4 class="mb-3">Billing address</h4>
+        <form id='billingForm' >
+          <input type='hidden' name='type' value={{plan.lessonsNumber}}>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="firstName">First name</label>
+              <input type="text" class="form-control notNumbers" id="firstName" name="firstname" placeholder="Mary" value="" required>
+              <div class="invalid-feedback">
+                Valid first name is required.
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="lastName">Last name</label>
+              <input type="text" class="form-control notNumbers" id="lastName" name="lastname" placeholder="Duval" value="" required>
+              <div class="invalid-feedback">
+                Valid last name is required.
+              </div>
+            </div>
+          </div>  
+          <div class="mb-3">
+            <label for="address">Address</label>
+            <input type="text" class="form-control" id="address" name="address" placeholder="1234 Main St" required>
+            <div class="invalid-feedback">
+              Please enter your address.
+            </div>
+          </div>  
+          <div class="row">
+            <div class="col-md-5 mb-3">
+              <label for="city">City</label>
+              <input type="text" class="form-control notNumbers" id="city" name="city" placeholder="London" required>
+              <div class="invalid-feedback">
+                Please enter a valid city.
+              </div>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="country">Country</label>
+              <input type="text" class="form-control notNumbers" id="country" name="country" placeholder="United Kingdom" required>
+              <div class="invalid-feedback">
+                Please provide a valid country.
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <label for="zip">Zip</label>
+              <input type="text" class="form-control" id="zip" name="zip" placeholder="E1 6AN" required>
+              <div class="invalid-feedback">
+                Zip code required.
+              </div>
+            </div>
+          </div>
+          <hr class="mb-4">       
+          <!-- <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" id="save-info" name="save-info">
+            <label class="custom-control-label" for="save-info">Save this information for next time</label>
+          </div>-->
+          <hr class="mb-4">
+
+          {# PAYMENT METHOD #}
+          <h4 class="mb-3">Payment</h4>  
+          <div class="d-block my-3">
+            <div class="custom-control custom-radio">
+              <input id="transfer" name="paymentMethod" type="radio" class="custom-control-input" value='transfer' checked required>
+              <label class="custom-control-label" for="credit">Wire transfer </label>
+            </div>
+            <div class="custom-control custom-radio">
+              <input id="card" name="paymentMethod" disabled type="radio" class="custom-control-input" value='card' required>
+              <label class="custom-control-label" for="debit">Credit card <span style='color:red'>Not available yet, sorry for the incovenience</span></label>
+            </div>
+            <div class="custom-control custom-radio">
+              <input id="paypal" name="paymentMethod" disabled type="radio" class="custom-control-input" value='paypal' required>
+              <label class="custom-control-label" for="paypal">PayPal <span style='color:red'>Not available yet, sorry for the incovenience</span></label>
+            </div>
+          </div>
+         
+          <hr class="mb-4">
+          <input id='continueCheckout' class="btn btn-primary btn-lg btn-block" type="button" value='Continue to checkout'></input>
+        </form>
+      </div>
+    </div>
+{% else %}
+    <div class="container">
+        <div class='row'>
+            <h1>Oops...something went wrong!</h1>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    {{parent()}}
+<script>
+    $( document ).ready(function() {
+
+        //-----------------------------------Listeners 
+        
+        $("#continueCheckout").click(validateBillingAddressForm);
+
+        $("#add_promo").click(function (){
+          //If we have already applied a promotion code, we need to ask for confirmation first
+          if($("#codeBlock").css('display') != 'none'){
+             Swal.fire({
+                title: 'You can only use one code',
+                text: "Do you want to change it?",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#1bdbe0',
+                cancelButtonColor: '#dc3545',
+                confirmButtonText: 'Yes, change it!'
+              }).then((result) => {
+                if (result.value) {
+                  checkCode();
+                }
+              })
+          }else{
+            checkCode();
+          }
+        });
+
+        $(".notNumbers").on('keypress', function(e){
+            //Prevent numbers and symbols to be written in .notNumbers inputs          
+            var regex = new RegExp("^[a-zA-Z -]+$");
+            var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
+            if (regex.test(str)) {
+                return true;
+            }
+            else
+            {
+              e.preventDefault();            
+              return false;
+            }
+        });       
+
+        //-----------------------------------Validators
+          
+        /**
+        * Function to check empty fields in billing address form
+        **/
+        function validateBillingAddressForm(){
+          $("#billingForm input[type='text']").each(function(){
+            input = $(this);
+            error = false;
+            if(input.val() == ""){
+              input.parent().find('.invalid-feedback').css('display', 'block');
+              error = true;
+            }else{
+              input.parent().find('.invalid-feedback').css('display', 'none');              
+            }            
+          });
+          if(error == false){
+              continueCheckout();
+          }
+        }
+       
+        /**
+        * Function to check if a promotion code is valid. If so, it changes 'Your purchase' values
+        **/
+        function checkCode(){
+  
+          total ={% if plan is defined and plan != "" %} {{ plan.priceTotal }} {% else %} $("#total").text() {% endif %};
+          $.ajax({
+              url: '{{path("check_promo_code")}}',
+              type: 'POST',
+              data: {code: $("#promo_code").val(), 'total': total},
+              success: function(data){
+                  if(data['code'] != 200){
+                      Swal.fire({
+                        type: 'error',
+                        title: 'Oops...',
+                        text: data['message'],
+                      })
+                  }else{
+                      //Success
+                      Swal.fire({
+                        type: 'success',
+                        title: data['message'],
+                      })
+                      $("#total").text(data['data']['newTotal']);
+                      $("#codeText").text(data['data']['code']);
+                      $("#codeDiscount").text('-$'+data['data']['discount']);
+                      $("#codeBlock").css('display', 'block');
+                      $("#billingForm").append('<input type="hidden" value="'+data['data']['code']+'" name="appliedCode">');
+                  }
+              }, error: function(e){
+                  Swal.fire({
+                      type: 'error',
+                      title: 'Oops...',
+                      text: 'There has been an error!',
+                  })
+              }
+          })
+        }
+
+        //-----------------------------------Checkout
+
+        /**
+        * Function to continue to payment (and save billing address if proceed)
+        **/
+        function continueCheckout(){
+           $.ajax({
+              url: '{{path("checkout")}}',
+              type: 'POST',
+              data: {form: $("#billingForm").serialize()},
+              success: function(data){
+                  if(data['code'] != 200){
+                      Swal.fire({
+                        type: 'error',
+                        title: 'Oops...',
+                        text: data['message'],
+                      })
+                  }else{
+                      //Success
+                      let url = "{{ path('checkout_transfer')}}";
+
+                      window.location.href= url;                 
+                  }
+              }, error: function(e){
+                  Swal.fire({
+                      type: 'error',
+                      title: 'Oops...',
+                      text: 'There has been an error!',
+                  })
+              }
+          })
+        }
+    })
+
+</script>
+
+{% endblock %}

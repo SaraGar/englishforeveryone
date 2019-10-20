@@ -1,0 +1,101 @@
+{% extends 'home/base.html.twig' %}
+
+{% block title %}Register{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+  <!-- Custom styles for this template -->
+  <link href="css/agency.css" rel="stylesheet">
+    <style>
+        input{
+            padding: 5px;
+            margin-bottom: 15px;
+        }
+    </style>
+{% endblock %}
+{% block body %}
+
+<body id="page-top">
+
+        {{parent()}}
+  <!-- Header -->
+  <header class="masthead">
+    <div class="container">
+            <div class="intro-text">
+                <div class='col-xs-12 col-sm-12 col-md-4 offset-md-4 col-lg-4 offset-lg-4'>
+                 
+                        <h1 class="h3 mb-3 font-weight-normal">Please register</h1>
+
+                        {{ form_start(registrationForm) }}
+                            {{ form_row(registrationForm.username, {'attr': {'placeholder': 'Username'}}) }}
+                            {{ form_row(registrationForm.email, {'attr': {'placeholder': 'Email'}}) }}
+                            {{ form_row(registrationForm.plainPassword, {'attr': {'placeholder': 'Password'}}) }}
+                            {{ form_row(registrationForm.agreeTerms) }}
+                    
+                            <button class="btn btn-lg btn-primary">Register</button>
+                        {{ form_end(registrationForm) }}
+                  
+                </div>
+        </div>
+    </div>
+  </header>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-4">
+          <span class="copyright">Copyright &copy; English for Everyone 2019</span>
+        </div>
+        <div class="col-md-4">
+          <ul class="list-inline social-buttons">
+            <li class="list-inline-item">
+              <a href="#">
+                <i class="fab fa-twitter"></i>
+              </a>
+            </li>
+            <li class="list-inline-item">
+              <a href="#">
+                <i class="fab fa-facebook-f"></i>
+              </a>
+            </li>
+            <li class="list-inline-item">
+              <a href="#">
+                <i class="fab fa-linkedin-in"></i>
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="col-md-4">
+          <ul class="list-inline quicklinks">
+            <li class="list-inline-item">
+              <a href="#">Privacy Policy</a>
+            </li>
+            <li class="list-inline-item">
+              <a href="#">Terms of Use</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+</body>
+
+
+
+{% endblock %}
+{% block javascripts %}
+{{parent()}}
+  <!-- Plugin JavaScript -->
+  <script src="jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Contact form JavaScript -->
+  <script src="js/jqBootstrapValidation.js"></script>
+  <script src="js/contact_me.js"></script>
+
+  <!-- Custom scripts for this template -->
+  <script src="js/agency.min.js"></script>
+{% endblock %}
+

@@ -1,0 +1,335 @@
+{% extends 'dashboard/dash_base.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('plugins/fullcalendar-3.9.0/fullcalendar.min.css') }}">
+    <style>
+        .fc-left h2{
+            font-size: x-large;
+            font-family: 'Kaushan Script', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+            sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'
+        }
+
+        .fc-today-button{
+            display:none;
+        }
+
+        .fc-state-default.fc-corner-left,.fc-state-default.fc-corner-right{
+            border-radius: 54px !important;
+        }
+
+        .fc-unthemed .fc-list-heading td, .fc-day-header {
+            color:white;
+            background-color:#181824;
+        }
+    
+    </style>
+
+{% endblock %}
+
+{% block content%}
+    {% if 'ROLE_TEACHER' not in app.user.roles  %}
+        <p>Click on the calendar to book or cancel a class (at least 24h before). You have {{app.user.paidLessonsLeft}} lessons left.</p>
+    {% else %}
+        <p>Click on the calendar to schedule a class. Click on a class's label to see the attendants list.</p>
+    {% endif %}
+
+ <div class="row">
+    <div class="col-md-7">
+        {% if 'ROLE_TEACHER' not in app.user.roles  %}
+            <h5>Your lessons</h5>
+        {% endif %}
+        <div id="calendar"></div>
+    </div>
+     <div class="col-md-5">
+        {% if 'ROLE_TEACHER' not in app.user.roles  %}
+            <h5>Available lessons</h5>
+        {% endif %}
+        <div id="list_calendar"></div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+
+{{parent()}}
+<script src="{{ asset('plugins/fullcalendar-3.9.0/lib/moment.min.js') }}"></script>
+<script src="{{ asset('plugins/fullcalendar-3.9.0/fullcalendar.js') }}"></script>
+
+<script>
+    $( document ).ready(function() {
+        {% if error is defined and error == true %}
+            Swal.Fire({'An error occurred', '', 'error'});
+        {% endif %}
+    
+    });
+
+    //----------------------------------------------------------------
+    //------------------------------------------------- Load calendars
+    //----------------------------------------------------------------
+
+    {% if 'ROLE_TEACHER' in app.user.roles  %}
+        
+        //Load the month calendar for teachers
+        var calendar = $('#calendar').fullCalendar({
+            events: {
+                url: '{{ path('teacher_get_lessons') }}',
+            },
+            eventColor: "#ffbc84",
+            eventClick: function(calEvent, jsEvent, view) {   
+                seeStudents(calEvent.id);
+            },
+            dayClick: function(date, jsEvent, view){
+                if(new Date(date.format()) > new Date()){
+                    addClassForm(date.format());
+                }
+            }
+        });
+
+        //Load the list calendar for teachers
+        var list_calendar = $('#list_calendar').fullCalendar({
+            events: {
+                url: '{{ path('teacher_get_lessons') }}'
+            },
+            defaultView: 'listMonth'
+        });
+   
+
+    {% elseif 'ROLE_USER' in app.user.roles %}
+
+        //Load the month calendar for students
+        var calendar = $('#calendar').fullCalendar({
+            events: {
+                url: '{{ path('get_my_reservations') }}',
+            },
+            eventColor: "#ffbc84",
+            eventClick: function(calEvent, jsEvent, view) {            
+                cancelReservation(calEvent.id);
+            },
+            dayClick: function(date, jsEvent, view){
+                if(new Date(date.format()) > new Date()){
+                    makeReservation(date.format());
+                }
+            }
+        });
+
+        //Load the list calendar for students
+        var list_calendar = $('#list_calendar').fullCalendar({
+            events: {
+                url: '{{ path('get_all_future_lessons') }}'
+            },
+            defaultView: 'listMonth'
+        });
+
+    {% endif %}
+
+    //--------------------------------------------------------------------
+    //------------------------------------------------- Cancel reservation
+    //--------------------------------------------------------------------
+
+    //Function to cancel a reservation and reload calendars
+    function cancelReservation(id){
+        Swal.fire({
+            title: 'Would you like to cancel the reservation?',
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#f2b134",
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            focusConfirm: false
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    url: '{{ path('cancel_reservation') }}',
+                    data: {'id_reservation': id },
+                    type: 'POST'
+                }).done(function(data) {
+                    if(data['code'] == 200){
+                        Swal.fire('Class successfully canceled', '', 'success');
+                        $('#calendar').fullCalendar('refetchEvents');
+                        $('#list_calendar').fullCalendar('refetchEvents');
+                    }else{
+                        Swal.fire('An error has occurred', data['message'], 'error');
+                    }
+                })
+            }
+        });
+    }
+    
+    //-------------------------------------------------------------------
+    //------------------------------------------------- Make reservations
+    //-------------------------------------------------------------------
+    
+    //Function to make a reservation -- shows the availables lesson's levels 
+    function makeReservation(date){
+         Swal.fire({
+            title: 'Would you like to make a new reservation?',
+            type: "info",
+            showCancelButton: true,
+            confirmButtonColor: "#f2b134",
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            focusConfirm: false,
+        }).then((result) => {
+            
+            if (result.value) {
+                //First check if the user still has lessons availables in the plan
+                $.ajax({
+                    url: '{{ path('check_lessons_left') }}',
+                    type: 'POST',
+                    async: false
+                }).done(function(data) {
+                    if(data['code'] == 200){   
+                        //Show the level buttons
+                        let buttons = '<div class="row">';
+                        {% for level in levels %}
+                            levelText = '{{level.level}}';                 
+                            buttons += '<div class="col"><button class="btn btn-warning" onclick="loadSchedules($(this))" data-level="{{level.level}}" data-date="'+date+'" style="border-radius: 50px" >{{level.level}}</button></div>';
+                        {% endfor %}
+                        buttons += '</div>';
+                        Swal.fire({
+                            title: 'Select your level',
+                            html: buttons,
+                            showCloseButton: false,
+                            showCancelButton: false,
+                            focusConfirm: false,                   
+                            confirmButtonText: 'Cancel',
+                            confirmButtonColor: '#acacac'                   
+                        })
+                    }else{
+                        Swal.fire("Sorry, you don't have any lesson left in your plan", "Go to Plans&Pricing to purchase more lessons","warning");
+                    }
+                });
+            }
+        })
+    }
+
+    //Function to make a reservation -- loads the availables lesson scheduled
+    //for this day and level
+    function loadSchedules(self){
+      level= self.attr('data-level');
+      date = self.attr('data-date');
+
+        $.ajax({
+            url: '{{ path('get_scheduled_lesssons') }}',
+            data: {'level': level, 'date': date },
+            type: 'POST'
+        }).done(function(data) {
+            if(data['code'] == 200){     
+                showTimeTable(data['data']['scheduledLessons'], date);
+            }
+            else if(data['code'] == 404){
+                Swal.fire('No lessons found', '', 'warning');
+            }else{
+                Swal.fire('An error has occurred', '', 'error');
+            }
+        })
+        
+    }
+
+    //Function to make a reservation -- shows the availables lesson scheduled
+    //for this day and level
+    function showTimeTable(data, date){
+        let radio = '<div class="row container">';
+        data.map(function (scheduledLesson){
+            radio += '<div class="col"><input class="radioTime" type="radio" name="time" value="'+scheduledLesson.id+'" data-date=""> '+(scheduledLesson.time).substr(0,5)+' - '+scheduledLesson.level+' - '+scheduledLesson.teacher_name+'</div>';
+        })
+        radio += '</div>';
+        radio +="<div class='container text-center'><button class='btn btn-primary' style='margin-top: 20px' id='save_reservation' data-date='date' onclick='saveLesson($(this))'>Save</button></div>";
+       
+        Swal.fire({
+            title: 'Select time',
+            html: radio,
+            showCloseButton: true,
+            showCancelButton: false,
+            showConfirmButton: false,  
+        })                    
+
+    }
+
+    //Function to make a reservation -- saves the reservation
+    function saveLesson(self){
+
+        date = self.attr('date-date');
+        lesson_id = $("input[name='time']:checked").val();
+
+        if(lesson_id == undefined){
+            Swal.fire("You haven't selected a class", '', 'error');
+        }else{
+            $.ajax({
+                url: '{{ path('book_lessson') }}',
+                data: {'date': date, 'lesson_id': lesson_id },
+                type: 'POST'
+            }).done(function(data) {
+                if(data['code'] == 200){     
+                    Swal.fire('Class successfully booked!', '', 'success');
+                    $('#calendar').fullCalendar('refetchEvents');
+                    $('#list_calendar').fullCalendar('refetchEvents');
+                }else{
+                    Swal.fire('An error has occurred', '', 'error');
+                }
+            })
+        }
+    }
+
+    //--------------------------------------------------------------------
+    //------------------------------------------------------- See students
+    //--------------------------------------------------------------------
+
+    //Function to load the usernames of the students who have made a reservation
+    //for the specified class 
+   function seeStudents(scheduleId){
+    
+        $.ajax({
+            url: '{{ path('get_schedule_students') }}',
+            data: {'schedule_id': scheduleId },
+            type: 'POST'
+        }).done(function(data) {
+            if(data['code'] == 200){  
+                html = "<ul>";
+                data['data']['students'].map((student)=>{
+                    html+="<li>"+student+"</li>";
+                })   
+                Swal.fire({
+                    title: 'Your students',
+                    html: html,
+                    showCloseButton: false,
+                    showCancelButton: false,
+                    showConfirmButton: true, 
+                    confirmButtonText: 'OK' 
+                }) 
+                
+            }else{
+                Swal.fire('An error has occurred', '', 'error');
+            }
+        })
+   }
+
+    //--------------------------------------------------------------------
+    //--------------------------------------------------- Schedule a class
+    //--------------------------------------------------------------------
+    
+   //Function to add a new scheduled class to the calendar
+   function addClassForm(date){
+        form = "<form action='{{path('save_scheduled_lesson')}}' method='POST'>";        
+        form += "<div class='container'><div class='row'><input type='time' name='time' id='time' style='padding-top: 5px' class='btn col'> | ";
+        {% for lesson in lessons %}
+            form += '<div class="col"><input class="radioLevel" type="radio" name="level" value="{{lesson.id}}" data-date="">{{lesson.level}}</div>';
+        {% endfor %}
+        form += "</div>";
+        form += "<input type='hidden' name='date' value='"+date+"'>";
+        form += "<div class='row'><button class='btn col-4 offset-4' style='background-color:black; color:white; margin-top: 20px' type='submit' >Save</button></div>";
+        form += "</div></form>";
+      
+        Swal.fire({
+            title: 'Select time and level',
+            html: form,
+            showCloseButton: false,
+            showCancelButton: false,
+            showConfirmButton: false, 
+            confirmButtonText: 'OK' 
+        }) 
+   }
+
+</script>
+{% endblock %}

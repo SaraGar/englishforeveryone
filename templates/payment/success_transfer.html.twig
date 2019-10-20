@@ -1,0 +1,25 @@
+{% extends 'dashboard/dash_base.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+{% block content%}
+
+<div class="container">
+<div class="row">
+    <div class='col-2 hidden-xs'>
+      <img src="https://icon-library.net//images/successful-icon/successful-icon-10.jpg" width="150" />
+    </div>
+    <div class='col'>
+        <h3>Your purchase has been processed successfully.</h3>
+        <p>You have chosen wire transfer as payment method, because of that your purchase will be waiting for payment confirmation.</p>
+        <p><strong>Please, do a wire transfer to our account: ES00 0000 0000 00 0000 within 5 days.</strong></p>
+        <p>You can find your invoice clicking on My Invoices in the left menu.</p>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block javascripts %}
+    {{parent()}}
+{% endblock %}

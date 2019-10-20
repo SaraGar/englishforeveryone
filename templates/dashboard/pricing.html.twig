@@ -1,0 +1,57 @@
+{% extends 'dashboard/dash_base.html.twig' %}
+
+{% block stylesheets %}
+
+  {{ parent() }}
+
+  <style>
+    .plan {
+      border-color: #fec503;
+    }
+
+    .pricing-card-title {
+      font-size: 50px !important;
+    }
+
+    .card-header h4 {
+      font-size: 25px !important;
+    }
+
+    .card-header{
+      color:white;
+      background-color:#181824;
+    }
+
+    
+  </style>
+
+{% endblock %}
+
+{% block content%}
+
+  <div class="container">
+
+    {% include 'includes/plans_pricing.html.twig' %}
+  
+  </div>
+
+{% endblock %}
+
+{% block javascripts %}
+
+  {{parent()}}
+
+  <script>
+
+    $(document).ready(function () {
+      $(".btn-payment").click(function() {
+        let lessons_number = $(this).attr('data-type');
+        let url = "{{ path('payment', {'t': 'number'})|escape('js') }}";
+        url = url.replace("number", lessons_number);
+        window.location.href= url;
+      })
+    })
+
+  </script>
+
+{% endblock %}

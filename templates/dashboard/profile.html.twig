@@ -1,0 +1,88 @@
+{% extends 'dashboard/dash_base.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+{% block content%}
+    <div class='container'>
+        <div class='row'>
+            <div class='col-xs-12 col-md-12 col-lg-12'>
+                <form id='profile_form'>
+                    <div class="row">
+                        <div class="col">
+                            <label for='firstname'>First name</label>
+                            <input type="text" id='firstname' name='firstname' class="form-control" {% if user %} value='{{ user.firstName}}' {% endif%}>
+                        </div>
+                        <div class="col">
+                            <label for='lastname'>Last name</label>
+                            <input type="text" id='lastname' name='lastname' class="form-control" {% if user %} value='{{ user.lastName}}' {% endif%}>
+                        </div>
+                    </div>
+                     <div class="row">
+                        <div class="col">
+                            <label for='email'>Email</label>
+                            <input type="email" id='email' name='email' class="form-control" {% if user %} value='{{ user.email}}' {% endif%}>
+                        </div>
+                        <div class="col">
+                            <label for='avatar'>Avatar name</label>
+                            <input type="text" id='avatar' name='avatar' class="form-control" {% if user %} value='{{ user.avatarName}}' {% endif%}>
+                        </div>
+                    </div>
+                     <div class="row">
+                        <div class="col">
+                            <label for='pass1'>Password</label>
+                            <input type="password" id='pass1' name='pass1' class="form-control">
+                        </div>
+                        <div class="col">
+                            <label for='pass2'>Repeat password</label>
+                            <input type="password" id='pass2' name='pass2' class="form-control">
+                        </div>
+                    </div>
+                    <div class='row'>
+                        <div class="col">
+                            <center>
+                              <input type="button" class="btn btn-success" id='save-profile' value='Save'/>
+                            </center>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{parent()}}
+<script>
+    $( document ).ready(function() {
+        $("#save-profile").click(()=>{
+            $.ajax({
+                url: '{{path("edit_user_profile")}}',
+                type: 'POST',
+                data: {form: $("#profile_form").serialize()},
+                success: function(data){
+                    if(data['code'] != 200){
+                        Swal.fire({
+                            type: 'error',
+                            title: 'Oops...',
+                            text: data['message'],
+                        })
+                    }else{
+                            Swal.fire({
+                            type: 'success',
+                            title: data['message'],
+                        })
+                    }
+                }, error: function(e){
+                     Swal.fire({
+                        type: 'error',
+                        title: 'Oops...',
+                        text: 'There has been an error!',
+                    })
+                }
+            })
+        })            
+    })
+
+</script>
+
+{% endblock %}

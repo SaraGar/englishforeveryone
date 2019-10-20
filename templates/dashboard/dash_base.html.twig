@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>{% block title %}English for everyone!{% endblock %}</title>
+
+  {% block stylesheets %}
+  
+      <link rel="stylesheet" href="simple-line-icons/css/simple-line-icons.css">
+      <link rel="stylesheet" href="flag-icon-css/css/flag-icon.min.css">
+      <link rel="stylesheet" href="css/vendor.bundle.base.css">
+      <link href='https://fonts.googleapis.com/css?family=Kaushan+Script' rel='stylesheet' type='text/css'>
+      <link href="fontawesome/css/all.min.css" rel="stylesheet" type="text/css">
+      <link rel="stylesheet" href="css/style.css">
+      <link rel="shortcut icon" href="{{asset('img/favicon.png')}}" />
+      <style>
+        .form-control {
+          margin-bottom: 20px;
+          border-radius: 10px;
+        }
+
+        button {
+          border-radius: 20px;
+        }
+
+        table.dataTable thead {
+          color: white;
+          background-color: #181824;
+        }
+
+        .dataTables_info {
+          font-size: small !important;
+        }
+
+        table.dataTable thead .sorting_asc,
+        table.dataTable thead .sorting_desc {
+          filter: grayscale(1)
+        }
+
+        .btn-primary {
+          background-color: #fed136;
+          border-color: #fed136;
+        }
+
+        .btn-primary:hover {
+          background-color: #fec810 !important;
+          border-color: #fec810 !important;
+          color: white;
+          transition: transform .2s;
+          transform: scale(1.05);
+        }
+
+        @media screen and (min-width: 992px) {
+          #sidebar {
+            position: fixed;
+          }
+
+          #content-wrapper {
+            margin-left: 240px;
+          }
+      </style>
+
+  {% endblock %}
+</head>
+
+<body>
+  {% block body %}
+  <div class="container-scroller">
+
+    {# Top bar #}
+
+    <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+      <div class="navbar-brand-wrapper d-flex align-items-center">
+        <a style='width: 100% !important; height: auto;' class="navbar-brand brand-logo" href="{{path('home')}}">
+          <img style='width: 100% !important; height: auto;' src="{{asset('img/logos/logo_transparent.png')}}"
+            alt="logo" class="logo-dark" width=100% />
+        </a>
+        <a class="navbar-brand brand-logo-mini" style='width: 100% !important' href="{{path('home')}}"><img
+            style='width: 100% !important; height: auto' src="{{asset('img/logos/logo-mini.png')}}" alt="logo" /></a>
+      </div>
+      <div class="navbar-menu-wrapper d-flex align-items-center flex-grow-1">
+        <h3>{% if title is defined %}{{title}}{% endif %}</h3>
+
+        <ul class="navbar-nav navbar-nav-right ml-auto">
+          <li class="nav-item dropdown d-none d-xl-inline-flex user-dropdown">
+            <a class="nav-link dropdown-toggle" id="UserDropdown" href="#" data-toggle="dropdown" aria-expanded="false">
+              <img class=" rounded-circle ml-2" src="img/user.png" alt="Profile image" height='50%'> <span
+                class="font-weight-normal"> {{app.user.username}} </span></a>
+            <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
+              <div class="dropdown-header text-center">
+                <p class="font-weight-light text-muted mb-0">{{app.user.email}} </p>
+              </div>
+              <a class="dropdown-item" href="{{path('profile')}}"><i
+                  class="dropdown-item-icon icon-user text-primary"></i> My Profile </a>
+              <a class="dropdown-item" href="{{path('app_logout')}}"><i
+                  class="dropdown-item-icon icon-power text-primary"></i>Sign Out</a>
+            </div>
+          </li>
+        </ul>
+        <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
+          data-toggle="offcanvas">
+          <span class="icon-menu"></span>
+        </button>
+      </div>
+    </nav>
+
+    <div class="container-fluid page-body-wrapper">
+
+      {# Left menu #}
+    
+      <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <ul class="nav">
+
+          {% if 'ROLE_ADMIN' in app.user.roles %}
+        
+          <li class="nav-item nav-category"><span class="nav-link">Users</span></li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{path('my_calendar')}}" aria-expanded="false" aria-controls="ui-basic">
+              <span class="menu-title">Users</span>
+              <i class="fas fa-user-alt menu-icon"></i>
+            </a>
+          </li>
+          <li class="nav-item nav-category"><span class="nav-link">Lessons</span></li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{path('my_calendar')}}" aria-expanded="false" aria-controls="ui-basic">
+              <span class="menu-title">Lesson's types</span>
+              <i class="fas fa-book-open menu-icon"></i>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{path('my_calendar')}}" aria-expanded="false" aria-controls="ui-basic">
+              <span class="menu-title">Lesson's calendar</span>
+              <i class="fas fa-calendar-alt menu-icon"></i>
+            </a>
+          </li>
+          <li class="nav-item nav-category"><span class="nav-link">Purchases</span></li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{path('my_invoices')}}">
+              <span class="menu-title">Invoices</span>
+              <i class="fas fa-file-invoice menu-icon"></i>
+            </a>
+          </li>
+        
+          {% elseif 'ROLE_TEACHER' in app.user.roles  %}
+        
+          <li class="nav-item nav-category"><span class="nav-link">My lessons</span></li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{path('my_calendar')}}" aria-expanded="false" aria-controls="ui-basic">
+              <span class="menu-title">My lessons</span>
+              <i class="fas fa-calendar-alt menu-icon"></i>
+            </a>
+          </li>
+          <li class="nav-item pro-upgrade">
+            <span class="nav-link">
+              <a class="btn btn-block px-0 btn-rounded btn-upgrade" href="https://learn.canvas.net/login/canvas"
+                target="_blank"> <i class="fas fa-pencil-alt mx-2"></i>Excercises</a>
+            </span>
+          </li>
+
+          {% elseif 'ROLE_USER' in app.user.roles %}
+
+          <li class="nav-item nav-category"><span class="nav-link">Lessons</span></li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{path('my_calendar')}}" aria-expanded="false" aria-controls="ui-basic">
+              <span class="menu-title">My lessons</span>
+              <i class="fas fa-calendar-alt menu-icon"></i>
+            </a>
+          </li>
+          <li class="nav-item nav-category"><span class="nav-link">Purchases</span></li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{path('pricing')}}">
+              <span class="menu-title">Plans & Pricing</span>
+              <i class="fas fa-shopping-cart  menu-icon"></i>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{path('my_invoices')}}">
+              <span class="menu-title">My invoices</span>
+              <i class="fas fa-file-invoice menu-icon"></i>
+            </a>
+          </li>
+          <li class="nav-item pro-upgrade">
+            <span class="nav-link">
+              <a class="btn btn-block px-0 btn-rounded btn-upgrade" href="https://learn.canvas.net/login/canvas"
+                target="_blank"> <i class="fas fa-pencil-alt mx-2"></i>Excercises</a>
+            </span>
+          </li>
+          
+          {% endif %}
+
+        </ul>
+      </nav>
+      
+      {# Content #}
+      
+      <div class="main-panel">
+        <div class="content-wrapper" id='content-wrapper'>
+          {% block content %}
+          {% endblock %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+  {% endblock %}
+
+  {% block javascripts %}
+
+    <script src="js/vendor.bundle.base.js"></script> 
+    <script src="js/off-canvas.js"></script>
+    <script src="js/misc.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
+
+  {% endblock %}
+</body>
+
+</html>

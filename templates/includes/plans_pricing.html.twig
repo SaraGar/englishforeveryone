@@ -1,0 +1,35 @@
+    {% set cont = 0 %}
+
+    {% for plan in plans %}
+
+    {% if cont == 0 or cont%3 == 0 %}
+    <div class="card-deck mb-3 text-center">
+        {% endif %}
+
+        {% set cont = cont + 1 %}
+
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header">
+                <h4 class="my-0 font-weight-normal">{{plan.lessonsNumber}} lessons plan</h4>
+            </div>
+            <div class="card-body">
+                <h1 class="card-title pricing-card-title">${{plan.priceNet}} <small class="text-muted">/ mo</small></h1>
+                <ul class="list-unstyled mt-3 mb-4">
+                    <li>{{plan.lessonsNumber}} English classes with an ESL teacher</li>
+                    <li>Weekly English lessons to practice on your own</li>
+                    <li>English Speaking, Reading, Writing, Grammar, Vocabulary</li>
+                </ul>
+                {% if app.user %}
+                <button type="button" class="btn btn-lg  btn-primary btn-payment" data-type={{plan.lessonsNumber}}>Go to
+                    payment</button>
+                {% else %}
+                 <a href='{{path("app_register")}}' class="btn btn-lg  btn-primary btn-payment" >Join us!</a>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if cont == 0 or cont%3 == 0 %}
+    </div>
+    {% endif %}
+
+    {% endfor %}
