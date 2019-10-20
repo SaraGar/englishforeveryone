@@ -9,15 +9,27 @@ Note that this is a work in progress, and also my first project using Symfony 4.
 
 TODO list:
     • Remove CDNs and split js and css into separate files.
+
     • Add mail sending
+
     • Cron to reset user's paid lessons left when the month ends.
+
     • Internal admin panel
+    
     • Add several billing address to users
+    
     • Testing
+    
     • Teacher’s blog
+    
     • Check overlap hours in lesson's reservation and creation
+    
     • Forgot password function
+    
     • Check wire payment manually (and prevent lessons to be added before the invoice is mark as paid)
+    
     • Error messages on teacher's lessons scheduling
+    
     • Responsive views (my_calendar)
+    
     • Fix invoice's logo
