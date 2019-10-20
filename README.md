@@ -8,6 +8,7 @@ Populate the tables with the initial set of data that you can find inside the fi
 Note that this is a work in progress, and also my first project using Symfony 4. Any advice would be greatly appreciated!
 
 TODO list:
+
     • Remove CDNs and split js and css into separate files.
 
     • Add mail sending
