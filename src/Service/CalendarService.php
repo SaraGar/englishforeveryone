@@ -16,13 +16,10 @@ class CalendarService
         $this->security = $security;
     }
 
-    /**
-     * Aux function to book a lesson
-     */
+
     public function bookLesson($date, $scheduled_lesson_id){
 
         try {
-            //Get the scheduled lesson
             $scheduledLesson = $this->em->getRepository('App:schedule')->findOneById($scheduled_lesson_id);
 
             //Make the reservation

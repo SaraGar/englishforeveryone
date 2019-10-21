@@ -11,12 +11,8 @@ use App\Service\PaymentService;
 
 class PaymentController extends Controller
 {
-    //--------------------------------------------------------------------
-    //----------------------------------------------------------- Checkout 
-    //--------------------------------------------------------------------
 
     /**
-     * Function to check if a discount code is valid
      * @Route("/check_promo_code", name="check_promo_code")
      */
     public function checkPromoCode(Request $request){
@@ -35,7 +31,6 @@ class PaymentController extends Controller
                 $newTotal = $total - $discount;
                 return new JsonResponse(["code" => 200, "message" => 'Valid code', "data" => ['newTotal' => $newTotal, 'code' => $code->getCode(), 'discount' => $discount]]);
             }else{
-                //Return error response
                 return new JsonResponse(["code" => 500, "message" => 'Invalid code']);
             }
 
@@ -46,7 +41,6 @@ class PaymentController extends Controller
     }
 
      /**
-     * Function to complete a purchase
      * @Route("/checkout", name="checkout")
      */
     public function checkout(Request $request, PaymentService $paymentService){
@@ -79,12 +73,7 @@ class PaymentController extends Controller
     }
 
 
-    //--------------------------------------------------------------------
-    //-------------------------------------------------------- My Invoices 
-    //--------------------------------------------------------------------
-
     /**
-     * Function to get the user's invoices list, to show the datatable
      * @Route("/get_my_invoices", name="get_my_invoices")
      */
     public function getMyInvoices(Request $request){
@@ -96,7 +85,6 @@ class PaymentController extends Controller
     }
 
     /**
-     * Function to download an invoice
      * @Route("/invoice_to_pdf", name="invoice_to_pdf")
      */
     public function invoiceToPDF(Request $request){

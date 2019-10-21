@@ -153,11 +153,11 @@
                 confirmButtonText: 'Yes, change it!'
               }).then((result) => {
                 if (result.value) {
-                  checkCode();
+                  checkPromoCode();
                 }
               })
           }else{
-            checkCode();
+            checkPromoCode();
           }
         });
 
@@ -177,9 +177,7 @@
 
         //-----------------------------------Validators
           
-        /**
-        * Function to check empty fields in billing address form
-        **/
+       
         function validateBillingAddressForm(){
           $("#billingForm input[type='text']").each(function(){
             input = $(this);
@@ -196,10 +194,8 @@
           }
         }
        
-        /**
-        * Function to check if a promotion code is valid. If so, it changes 'Your purchase' values
-        **/
-        function checkCode(){
+   
+        function checkPromoCode(){
   
           total ={% if plan is defined and plan != "" %} {{ plan.priceTotal }} {% else %} $("#total").text() {% endif %};
           $.ajax({
@@ -214,7 +210,6 @@
                         text: data['message'],
                       })
                   }else{
-                      //Success
                       Swal.fire({
                         type: 'success',
                         title: data['message'],
@@ -236,10 +231,7 @@
         }
 
         //-----------------------------------Checkout
-
-        /**
-        * Function to continue to payment (and save billing address if proceed)
-        **/
+      
         function continueCheckout(){
            $.ajax({
               url: '{{path("checkout")}}',
@@ -253,7 +245,6 @@
                         text: data['message'],
                       })
                   }else{
-                      //Success
                       let url = "{{ path('checkout_transfer')}}";
 
                       window.location.href= url;                 

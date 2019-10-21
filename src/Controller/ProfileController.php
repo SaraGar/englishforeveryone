@@ -13,7 +13,6 @@ use App\Service\ProfileService;
 class ProfileController extends AbstractController
 {
     /**
-     * Function to edit the user profile
      * @Route("/edit_user_profile", name="edit_user_profile")
      */
     public function editProfileAction(Request $request, UserPasswordEncoderInterface $encoder, ProfileService $profileService){
@@ -22,16 +21,13 @@ class ProfileController extends AbstractController
             $em = $this->getDoctrine()->getManager();
             parse_str($request->request->get('form'), $formData); 
 
-            //----------Validations
             $validatorResponse = $profileService->validateProfileForm($formData);
             if($validatorResponse['code'] == 500){
                 return new JsonResponse($validatorResponse);
             }
             
-            //--------Encode password
             $pass = $encoder->encodePassword($this->getUser(), $formData['pass1']);
 
-            //--------Setters
             $this->getUser()->setFirstname($formData['firstname']);
             $this->getUser()->setLastname($formData['lastname']);
             $this->getUser()->setAvatarName($formData['avatar']);

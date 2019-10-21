@@ -19,10 +19,8 @@ class ScheduleRepository extends ServiceEntityRepository
         parent::__construct($registry, Schedule::class);
     }
 
-    /**
-     * Function to get all future available lessons
-     */
-    public function getAllFutureLessons(){
+    public function getAllFutureAvailableLessons(){
+    
         $sql = "SELECT s.id, l.level, s.teacher_name as teacher, s.date as start, DATE_ADD(s.date, INTERVAL +50 MINUTE) as end 
                 FROM schedule s 
                 JOIN lesson l ON l.id = s.lesson_id

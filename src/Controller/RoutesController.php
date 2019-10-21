@@ -10,7 +10,6 @@ use Symfony\Component\HttpFoundation\Request;
 class RoutesController extends AbstractController
 {
     /**
-     * Home page
      * @Route("/", name="home")
      */
     public function index()
@@ -24,29 +23,33 @@ class RoutesController extends AbstractController
     }
 
      /**
-     * Function to check the user's role on login, and redirect 
      * @Route("/dash", name="dash")
      */
     public function dashboard()
-    {   if($this->isGranted('ROLE_SUPER_ADMIN')){
+    {   
+        if($this->isGranted('ROLE_SUPER_ADMIN')){
+
             return $this->redirect('http://localhost:8000/teacher_admin_panel/');
+        
         }else if ($this->isGranted('ROLE_ADMIN')){
+        
             return $this->redirectToRoute('my_invoices');
+        
         }else if ($this->isGranted('ROLE_TEACHER')){
+        
             return $this->redirectToRoute('my_calendar');
-        }
-        else if($this->isGranted('ROLE_USER')){
+
+        }else if($this->isGranted('ROLE_USER')){
+        
             return $this->redirectToRoute('my_calendar');
         }            
     }
 
     /**
-     * Load my profile page
      * @Route("/profile", name="profile")
      */
     public function loadProfile()
     {  
-        // Check user authentication
         if($this->getUser()){ 
             return $this->render('dashboard/profile.html.twig',  [
                 'user' => $this->getUser(),
@@ -60,12 +63,10 @@ class RoutesController extends AbstractController
 
 
     /**
-     * Load pricing page
      * @Route("/pricing", name="pricing")
      */
     public function loadPricing()
     {  
-        // Check user authentication
         if($this->getUser()){ 
             $plans = $this->getDoctrine()->getManager()->getRepository('App:Plan')->findBy(['disabled' => 0]);
             return $this->render('dashboard/pricing.html.twig',  [
@@ -79,12 +80,10 @@ class RoutesController extends AbstractController
     }
 
      /**
-     * Billing address page 
      * @Route("/payment", name="payment")
      */
-    public function loadPayment(Request $request)
+    public function billingAddressPage(Request $request)
     {  
-        // Check user authentication
         if($this->getUser()){ 
             $plan = '';
             $type = $request->get('t');
@@ -103,11 +102,10 @@ class RoutesController extends AbstractController
 
 
     /**
-    * Page to give information about successful purchase with wire transfer payment
+    * Page to give information about completed purchase with wire transfer payment
     * @Route("/checkout_transfer", name="checkout_transfer")
     */
     public function checkout_transfer(){
-        // Check user authentication
         if($this->getUser()){ 
             return $this->render('payment/success_transfer.html.twig',  [
                 'title' => 'Payment',
@@ -119,11 +117,9 @@ class RoutesController extends AbstractController
     }
 
    /**
-    * My invoices page
     * @Route("/my_invoices", name="my_invoices")
     */
     public function loadMyInvoices(){
-        // Check user authentication
         if($this->getUser()){ 
             return $this->render('dashboard/invoices.html.twig',  [
                 'title' => 'Invoices',
@@ -135,19 +131,18 @@ class RoutesController extends AbstractController
     }
 
     /**
-    * My reservations page
     * @Route("/my_calendar", name="my_calendar")
     */
     public function loadMyCalendar(){
-        // Check user authentication
         if($this->getUser()){ 
             $lessons = $this->getDoctrine()->getManager()->getRepository('App:Lesson')->findAll();
-            $levels = $this->getDoctrine()->getManager()->getRepository('App:Lesson')->getLevels();
+            $levels = $this->getDoctrine()->getManager()->getRepository('App:Lesson')->getLevelNames();
             return $this->render('dashboard/my_calendar.html.twig', [
                 'title' => 'My calendar',
                 'controller_name' => 'RoutesController',
                 'levels' => $levels,
-                'lessons' => $lessons
+                'lessons' => $lessons,
+                'paidLessonsLeft' => $this->getUser()->getPaidLessonsLeft()
             ]);
         }else{
             return $this->redirectToRoute('app_login');

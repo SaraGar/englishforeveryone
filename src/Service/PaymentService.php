@@ -18,12 +18,9 @@ class PaymentService
         $this->security = $security;
     }
 
-    /**
-     * Aux function to generate a plan's invoice and its lines
-     */
+
     public function generatePlanInvoiceAndLines($formData){
 
-        //Get the plan 
         $plan = $this->em->getRepository('App:Plan')->findOneBy(['disabled' => 0, 'lessonsNumber' =>  $formData['type']]);
         if($plan){
             //TODO the payment should be checked manually in the admin panel and then, the lessons should be added, not here.
@@ -73,9 +70,7 @@ class PaymentService
         }
     }
 
-    /**
-     * Aux function to save the billing address for future use
-     */
+
     public function saveBillingAddress($formData){
 
         try {
@@ -100,9 +95,7 @@ class PaymentService
     }
 
 
-    /**
-     * Aux function to generate a plan's invoice
-     */
+
     public function generatePlanInvoice($formData, $temporaryTotal=0){
 
         $invoice = new Invoice();
@@ -132,9 +125,6 @@ class PaymentService
        
     }
 
-    /**
-     * Aux function to generate the lines of a plan's invoice
-     */
     public function generatePlanInvoiceLine($lineInfo){
 
         try {

@@ -28,7 +28,7 @@
 
 {% block content%}
     {% if 'ROLE_TEACHER' not in app.user.roles  %}
-        <p>Click on the calendar to book or cancel a class (at least 24h before). You have {{app.user.paidLessonsLeft}} lessons left.</p>
+        <p>Click on the calendar to book or cancel a class (at least 24h before). You have <span id='lessonsLeftCounter'>{{paidLessonsLeft}}</span> lessons left.</p>
     {% else %}
         <p>Click on the calendar to schedule a class. Click on a class's label to see the attendants list.</p>
     {% endif %}
@@ -64,20 +64,18 @@
     
     });
 
-    //----------------------------------------------------------------
     //------------------------------------------------- Load calendars
-    //----------------------------------------------------------------
 
     {% if 'ROLE_TEACHER' in app.user.roles  %}
         
-        //Load the month calendar for teachers
+        //Month calendar 
         var calendar = $('#calendar').fullCalendar({
             events: {
                 url: '{{ path('teacher_get_lessons') }}',
             },
             eventColor: "#ffbc84",
             eventClick: function(calEvent, jsEvent, view) {   
-                seeStudents(calEvent.id);
+                seeStudentsForThisClass(calEvent.id);
             },
             dayClick: function(date, jsEvent, view){
                 if(new Date(date.format()) > new Date()){
@@ -86,7 +84,7 @@
             }
         });
 
-        //Load the list calendar for teachers
+        //List calendar
         var list_calendar = $('#list_calendar').fullCalendar({
             events: {
                 url: '{{ path('teacher_get_lessons') }}'
@@ -97,7 +95,7 @@
 
     {% elseif 'ROLE_USER' in app.user.roles %}
 
-        //Load the month calendar for students
+        //Month calendar for students
         var calendar = $('#calendar').fullCalendar({
             events: {
                 url: '{{ path('get_my_reservations') }}',
@@ -113,7 +111,7 @@
             }
         });
 
-        //Load the list calendar for students
+        //List calendar for students
         var list_calendar = $('#list_calendar').fullCalendar({
             events: {
                 url: '{{ path('get_all_future_lessons') }}'
@@ -123,11 +121,8 @@
 
     {% endif %}
 
-    //--------------------------------------------------------------------
     //------------------------------------------------- Cancel reservation
-    //--------------------------------------------------------------------
 
-    //Function to cancel a reservation and reload calendars
     function cancelReservation(id){
         Swal.fire({
             title: 'Would you like to cancel the reservation?',
@@ -146,6 +141,10 @@
                 }).done(function(data) {
                     if(data['code'] == 200){
                         Swal.fire('Class successfully canceled', '', 'success');
+
+                        {% set paidLessonsLeft = paidLessonsLeft +1 %}
+                        $("#lessonsLeftCounter").html({{paidLessonsLeft}});
+                   
                         $('#calendar').fullCalendar('refetchEvents');
                         $('#list_calendar').fullCalendar('refetchEvents');
                     }else{
@@ -156,11 +155,9 @@
         });
     }
     
-    //-------------------------------------------------------------------
     //------------------------------------------------- Make reservations
-    //-------------------------------------------------------------------
     
-    //Function to make a reservation -- shows the availables lesson's levels 
+    //Shows the availables lesson's levels and start the process to make a reservation
     function makeReservation(date){
          Swal.fire({
             title: 'Would you like to make a new reservation?',
@@ -180,11 +177,11 @@
                     async: false
                 }).done(function(data) {
                     if(data['code'] == 200){   
-                        //Show the level buttons
+
                         let buttons = '<div class="row">';
                         {% for level in levels %}
                             levelText = '{{level.level}}';                 
-                            buttons += '<div class="col"><button class="btn btn-warning" onclick="loadSchedules($(this))" data-level="{{level.level}}" data-date="'+date+'" style="border-radius: 50px" >{{level.level}}</button></div>';
+                            buttons += '<div class="col"><button class="btn btn-warning" onclick="loadScheduledLessons($(this))" data-level="{{level.level}}" data-date="'+date+'" style="border-radius: 50px" >{{level.level}}</button></div>';
                         {% endfor %}
                         buttons += '</div>';
                         Swal.fire({
@@ -204,9 +201,7 @@
         })
     }
 
-    //Function to make a reservation -- loads the availables lesson scheduled
-    //for this day and level
-    function loadSchedules(self){
+    function loadScheduledLessons(self){
       level= self.attr('data-level');
       date = self.attr('data-date');
 
@@ -227,15 +222,14 @@
         
     }
 
-    //Function to make a reservation -- shows the availables lesson scheduled
-    //for this day and level
+    //Shows the available lessons scheduled
     function showTimeTable(data, date){
         let radio = '<div class="row container">';
         data.map(function (scheduledLesson){
             radio += '<div class="col"><input class="radioTime" type="radio" name="time" value="'+scheduledLesson.id+'" data-date=""> '+(scheduledLesson.time).substr(0,5)+' - '+scheduledLesson.level+' - '+scheduledLesson.teacher_name+'</div>';
         })
         radio += '</div>';
-        radio +="<div class='container text-center'><button class='btn btn-primary' style='margin-top: 20px' id='save_reservation' data-date='date' onclick='saveLesson($(this))'>Save</button></div>";
+        radio +="<div class='container text-center'><button class='btn btn-primary' style='margin-top: 20px' id='save_reservation' data-date='date' onclick='saveReservation($(this))'>Save</button></div>";
        
         Swal.fire({
             title: 'Select time',
@@ -247,8 +241,7 @@
 
     }
 
-    //Function to make a reservation -- saves the reservation
-    function saveLesson(self){
+    function saveReservation(self){
 
         date = self.attr('date-date');
         lesson_id = $("input[name='time']:checked").val();
@@ -263,6 +256,10 @@
             }).done(function(data) {
                 if(data['code'] == 200){     
                     Swal.fire('Class successfully booked!', '', 'success');
+                   
+                    {% set paidLessonsLeft = paidLessonsLeft -1 %}
+                    $("#lessonsLeftCounter").html({{paidLessonsLeft}});
+                   
                     $('#calendar').fullCalendar('refetchEvents');
                     $('#list_calendar').fullCalendar('refetchEvents');
                 }else{
@@ -272,13 +269,10 @@
         }
     }
 
-    //--------------------------------------------------------------------
     //------------------------------------------------------- See students
-    //--------------------------------------------------------------------
 
-    //Function to load the usernames of the students who have made a reservation
-    //for the specified class 
-   function seeStudents(scheduleId){
+
+   function seeStudentsForThisClass(scheduleId){
     
         $.ajax({
             url: '{{ path('get_schedule_students') }}',
@@ -305,11 +299,8 @@
         })
    }
 
-    //--------------------------------------------------------------------
     //--------------------------------------------------- Schedule a class
-    //--------------------------------------------------------------------
     
-   //Function to add a new scheduled class to the calendar
    function addClassForm(date){
         form = "<form action='{{path('save_scheduled_lesson')}}' method='POST'>";        
         form += "<div class='container'><div class='row'><input type='time' name='time' id='time' style='padding-top: 5px' class='btn col'> | ";

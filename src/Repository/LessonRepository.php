@@ -19,10 +19,8 @@ class LessonRepository extends ServiceEntityRepository
         parent::__construct($registry, Lesson::class);
     }
 
-    /**
-     * Function to get level names
-     */
-    public function getLevels(){
+
+    public function getLevelNames(){
         $sql = "SELECT DISTINCT(l.level)
                 FROM lesson l
                 ORDER BY l.level ";
@@ -30,10 +28,8 @@ class LessonRepository extends ServiceEntityRepository
         return $queryRecords;
     }
 
-    /**
-     * Function to get available lessons for a certain day and level
-     */
-    public function getAvailableLessonsByLevel($level, $date, $user){
+
+    public function getAvailableLessonsByDateAndLevel($level, $date, $user){
         $sql = "SELECT s.id, l.description, l.level, s.teacher_name, CAST(s.date AS time) as time
                 FROM schedule s 
                 JOIN lesson l ON l.id = s.lesson_id

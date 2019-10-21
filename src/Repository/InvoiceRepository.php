@@ -20,9 +20,7 @@ class InvoiceRepository extends ServiceEntityRepository
         parent::__construct($registry, Invoice::class);
     }
 
-    /**
-     * Function to obtain user's invoices
-     */
+
     public function getMyInvoices($params, $filters, $user){
 
         $em = $this->getEntityManager();
@@ -82,7 +80,7 @@ class InvoiceRepository extends ServiceEntityRepository
         $json_data = array(
             "recordsTotal"    => intval( $queryTot ),
             "recordsFiltered" => intval( $queryTot ),
-            "data"            => $queryRecords,   // total data array
+            "data"            => $queryRecords,  
         );
         return $json_data;
     
